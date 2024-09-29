@@ -218,9 +218,9 @@ class preprocess_categorical_features(BaseEstimator, TransformerMixin):
     def transmission_encode(self,x): 
         x = x.lower().strip()
         if 'automatic' == x:
-            return 0
-        else: 
             return 1
+        else: 
+            return 0
         
     def cylinder_encode(self,x):
         if pd.notna(x):
