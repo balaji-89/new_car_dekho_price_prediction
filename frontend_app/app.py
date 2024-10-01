@@ -485,10 +485,10 @@ if st.button("Predict"):
     df = pd.DataFrame([data])
 
 
-    with open("/home/laptop-kl-11/personal_project/car_dekho_project/load_preprocess_data/preprocess_pipeline.pkl", 'rb') as pipeline:
+    with open("load_preprocess_data/preprocess_pipeline.pkl", 'rb') as pipeline:
        loaded_pipeline = dill.load(pipeline)
        data = loaded_pipeline.transform(df)
-       with open('/home/laptop-kl-11/personal_project/car_dekho_project/weights/random_forest.pkl','rb') as model:
+       with open('weights/random_forest.pkl','rb') as model:
            model = dill.load(model)
            predicition = model.predict(data)
            predicition = loaded_pipeline.__getitem__(0)[2].y_ss.inverse_transform([predicition])
