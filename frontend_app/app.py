@@ -1,4 +1,10 @@
 import streamlit as st
+import pandas as pd
+import pickle 
+import dill
+from load_preprocess_data.preprocess_pipeline import *
+
+
 
 # Title
 st.title("Second-Hand Car Price Prediction")
@@ -10,6 +16,8 @@ st.header("Basic Information")
 col1, col2, col3, col4 = st.columns(4)
 transmission = col1.selectbox("Transmission", ['Manual', 'Automatic'])
 ownerno = col2.number_input("Total no of previous owners",min_value = 1,max_value = 10)
+
+
 
 
 
@@ -184,7 +192,7 @@ air_quality_control = col4.selectbox("Air Quality Control", ['Yes', 'No'])
 
 low_fuel_warning_light = col1.selectbox("Low Fuel Warning Light", ['Yes', 'No'])
 remote_climate_control = col2.selectbox("Remote Climate Control", ['Yes', 'No'])
-power_folding_3rd_row_seat = col3.selectbox("Power Folding 3rd Row Seat", ['Yes', 'No'])
+power_folding3rd_row_seat = col3.selectbox("Power Folding 3rd Row Seat", ['Yes', 'No'])
 steering_mounted_tripmeter = col4.selectbox("Steering Mounted Tripmeter", ['Yes', 'No'])
 
 accessory_power_outlet = col1.selectbox("Accessory Power Outlet", ['Yes', 'No'])
@@ -253,7 +261,7 @@ rear_camera = cols[3].selectbox('Rear Camera',["Yes","No"])
 geo_fence_alert = cols[0].selectbox('Geo Fence Alert',['Yes','No'])
 clutch_lock = cols[1].selectbox('Clutch Lock',['Yes','No'])
 side_air_bag_rear = cols[2].selectbox('Side Air Bag Rear',['Yes','No'])
-electronic_stability_control = cols[3].selectbox('Electronic Stability Control',["Yes","No"])
+eletronic_stability_control = cols[3].selectbox('Electronic Stability Control',["Yes","No"])
 
 child_safety_locks = cols[0].selectbox('Child Safety Locks',['Yes','No'])
 ebd = cols[1].selectbox('Electronic Brakes Distribution',['Yes','No'])
@@ -262,7 +270,7 @@ crash_sensor = cols[3].selectbox('Crash Sensor',['Yes','No'])
 
 brake_assist = cols[0].selectbox('Brake Assist',['Yes','No'])
 passenger_air_bag = cols[1].selectbox('Passenger Air Bag',['Yes','No'])
-sos_emergency_assistant = cols[2].selectbox('SOS Emergency Assist',['Yes','No'])
+sos_emergency_assistance = cols[2].selectbox('SOS Emergency Assist',['Yes','No'])
 day_night_rear_view_mirror = cols[3].selectbox('Day night rear veiw mirror',['Yes','No'])
 
 door_ajar_warning = cols[0].selectbox('Door Ajar Warning',['Yes','No'])
@@ -445,11 +453,49 @@ cd_player = cols[0].selectbox("CD Player", ['Yes', 'No'])
 # Section 8: Final Details and Prediction
 st.header("Final Details")
 
-# Display price range estimation (optional feature)
 st.subheader("Estimated Price")
-
-# Adding a "Predict" button for future integration of price prediction model
 if st.button("Predict"):
-    # Here, you would add code to process the input and provide the prediction based on the model.
     st.write("Your car's estimated price will be displayed here.")
+    usr_data = [transmission,ownerno,original_equipment_manufacturer,model,drive_modes,voice_control,smart_key_band,battery_saver,rear_reading_lamp,power_boot,power_steering,real_time_vehicle_tracking,luggage_hook_and_net,cruise_control,seat_lumbar_support,power_windows_front,
+     vanity_mirror,gear_shift_indicator,trunk_light,adjustable_headrest,engine_start_stop_button,find_my_car_location,multifunction_steering_wheel,remote_engine_start_stop,active_noise_cancellation,remote_fuel_lid_opener,hands_free_tailgate,remote_trunk_opener,
+     lane_change_indicator,glove_box_cooling,tailgate_ajar,steering_wheel_gearshift_paddles,rear_seat_centre_arm_rest,navigation_system,cup_holders_rear,smart_access_card_entry,power_windows_rear,cup_holders_front,rear_acvents,air_quality_control,low_fuel_warning_light,remote_climate_control,
+     power_folding3rd_row_seat,steering_mounted_tripmeter,accessory_power_outlet,rear_seat_headrest,remote_horn_light_control,height_adjustable_front_seat_belts,leather_steering_wheel,fabric_upholstery,glove_compartment,adjustable_steering,height_adjustable_driver_seat,air_conditioner,cigarette_lighter,
+     dual_tone_dashboard,heater,digital_clock,outside_temperature_display,leather_seats,electronic_multi_tripmeter,rear_folding_table,driving_experience_control_eco,leather_wrap_gear_shift_selector,digital_odometer,tachometer,ventilated_seats,tinted_glass,fog_lights_rear,ledfog_lamps,smoke_headlamps,chrome_grille,
+     rear_window_wiper,ledtaillights,outside_rear_view_mirror_turn_indicators,adjustable_head_lights,rain_sensing_wiper,automatic_driving_lights,roof_rail,power_antenna,integrated_antenna,removable_convertible_top,sun_roof,manually_adjustable_exterior_rear_view_mirror,side_stepper,projector_headlamps,electric_folding_rear_view_mirror,
+     cornering_foglamps,chrome_garnish,moon_roof,alloy_wheels,rear_window_washer,leddrls,wheel_covers,heated_wing_mirror,power_adjustable_exterior_rear_view_mirror,halogen_headlamps,rear_spoiler,fog_lights_front,rear_window_defogger,cornering_headlamps,dual_tone_body_colour,headlamp_washers,roof_carrier,ledheadlights,traction_control,side_impact_beams,
+     seat_belt_warning,rear_seat_belts,power_door_locks,xenon_headlamps,pretensioners_and_force_limiter_seatbelts,side_air_bag_front,anti_lock_braking_system,centeral_locking,hill_descent_control,anti_theft_device,vehicle_stability_control_system,blind_spot_monitor,automatic_head_lamps,knee_airbags,driver_air_bag,engine_immobilizer,crash_sensor,lane_watch_camera,
+     front_impact_beams,view360camera,speed_sensing_auto_door_lock,anti_pinch_power_windows,speed_alert,hill_assist,passenger_side_rear_view_mirror,adjustable_seats,rear_camera,geo_fence_alert,clutch_lock,side_air_bag_rear,eletronic_stability_control,child_safety_locks,ebd,centrally_mounted_fuel_tank,brake_assist,passenger_air_bag,sos_emergency_assistance,
+     day_night_rear_view_mirror,door_ajar_warning,halogen_headlamps_1,engine_check_warning,isofix_child_seat_mounts,tyre_pressure_monitor,heads_up_display,follow_me_home_headlamps,anti_theft_alarm,impact_sensing_auto_door_lock,keyless_entry,audio_system_remote_control,cd_changer,wireless_phone_charging,speakers_front,internal_storage,touch_screen_size,
+     wifi_connectivity,dvd_player,speakers_rear,radio,android_auto,apple_car_play,cassette_player,touch_screen,usb_auxiliary_input,bluetooth,mirror_link,rear_entertainment_system,integrated2din_audio,compass,cd_player,color,turbo_charger,front_brake_type,rear_brake_type,kerb_weight,height,wheel_base,length,width,kilo_meter,model_year,engine_displacement,
+     fuel_type,body_type,location,no_of_cylinder,tyre_type]
+    
+    
+    column_names = ['fuel_type', 'body_type', 'kilo_meter', 'transmission', 'ownerno', 'original_equipment_manufacturer', 'model', 'model_year', 'location', 'engine_displacement', 'drive_modes', 'voice_control', 'smart_key_band', 'battery_saver', 'rear_reading_lamp', 'power_boot', 'power_steering', 'real_time_vehicle_tracking', 'luggage_hook_and_net', 'cruise_control', 'seat_lumbar_support', 
+                    'power_windows_front', 'vanity_mirror', 'gear_shift_indicator', 'trunk_light', 'adjustable_headrest', 'engine_start_stop_button', 'find_my_car_location', 'multifunction_steering_wheel', 'remote_engine_start_stop', 'active_noise_cancellation', 'remote_fuel_lid_opener', 'hands_free_tailgate', 'remote_trunk_opener', 'lane_change_indicator', 'glove_box_cooling', 'tailgate_ajar', 'steering_wheel_gearshift_paddles', 'rear_seat_centre_arm_rest', 'navigation_system', 'cup_holders_rear', 
+                    'smart_access_card_entry', 'power_windows_rear', 'cup_holders_front', 'rear_acvents', 'air_quality_control', 'low_fuel_warning_light', 'remote_climate_control', 'power_folding3rd_row_seat', 'steering_mounted_tripmeter', 'accessory_power_outlet', 'rear_seat_headrest', 'remote_horn_light_control', 'height_adjustable_front_seat_belts', 'leather_steering_wheel', 'fabric_upholstery', 'glove_compartment', 'adjustable_steering', 'height_adjustable_driver_seat', 'air_conditioner', 'cigarette_lighter', 
+                    'dual_tone_dashboard', 'heater', 'digital_clock', 'outside_temperature_display', 'leather_seats', 'electronic_multi_tripmeter', 'rear_folding_table', 'driving_experience_control_eco', 'leather_wrap_gear_shift_selector', 'digital_odometer', 'tachometer', 'ventilated_seats', 'tinted_glass', 'fog_lights_rear', 'ledfog_lamps', 'smoke_headlamps', 'chrome_grille', 'rear_window_wiper', 'ledtaillights', 'outside_rear_view_mirror_turn_indicators', 'adjustable_head_lights', 'rain_sensing_wiper', 'automatic_driving_lights', 'roof_rail', 'power_antenna', 'integrated_antenna', 
+                    'removable_convertible_top', 'sun_roof', 'manually_adjustable_exterior_rear_view_mirror', 'side_stepper', 'projector_headlamps', 'electric_folding_rear_view_mirror', 'cornering_foglamps', 'chrome_garnish', 'moon_roof', 'alloy_wheels', 'rear_window_washer', 'leddrls', 'wheel_covers', 'heated_wing_mirror', 'power_adjustable_exterior_rear_view_mirror', 'halogen_headlamps', 'rear_spoiler', 'fog_lights_front', 'rear_window_defogger', 'cornering_headlamps', 'dual_tone_body_colour', 'headlamp_washers', 'roof_carrier', 'ledheadlights', 'traction_control', 
+                    'side_impact_beams', 'seat_belt_warning', 'rear_seat_belts', 'power_door_locks', 'xenon_headlamps', 'pretensioners_and_force_limiter_seatbelts', 'side_air_bag_front', 'anti_lock_braking_system', 'centeral_locking', 'hill_descent_control', 'anti_theft_device', 'vehicle_stability_control_system', 'blind_spot_monitor', 'automatic_head_lamps', 'knee_airbags', 'driver_air_bag', 'engine_immobilizer', 'crash_sensor', 'lane_watch_camera', 'front_impact_beams', 'view360camera', 'speed_sensing_auto_door_lock', 'anti_pinch_power_windows', 'speed_alert', 'hill_assist', 
+                    'passenger_side_rear_view_mirror', 'adjustable_seats', 'rear_camera', 'geo_fence_alert', 'clutch_lock', 'side_air_bag_rear', 'eletronic_stability_control', 'child_safety_locks', 'ebd', 'centrally_mounted_fuel_tank', 'brake_assist', 'passenger_air_bag', 'sos_emergency_assistance', 'day_night_rear_view_mirror', 'door_ajar_warning', 'halogen_headlamps_1', 'engine_check_warning', 'isofix_child_seat_mounts', 'tyre_pressure_monitor', 'heads_up_display', 'follow_me_home_headlamps', 'anti_theft_alarm', 'impact_sensing_auto_door_lock', 'keyless_entry', 
+                    'audio_system_remote_control', 'cd_changer', 'wireless_phone_charging', 'speakers_front', 'internal_storage', 'touch_screen_size', 'wifi_connectivity', 'dvd_player', 'speakers_rear', 'radio', 'android_auto', 'apple_car_play', 'cassette_player', 'touch_screen', 'usb_auxiliary_input', 'bluetooth', 'mirror_link', 'rear_entertainment_system', 'integrated2din_audio', 'compass', 'cd_player', 'color', 'turbo_charger', 'no_of_cylinder', 'width', 'length', 'wheel_base', 'height', 'kerb_weight', 'tyre_type', 'front_brake_type', 'rear_brake_type']
+    
+
+
+    data = {var: locals()[var] for var in column_names}
+    df = pd.DataFrame([data])
+
+
+    with open("/home/laptop-kl-11/personal_project/car_dekho_project/load_preprocess_data/preprocess_pipeline.pkl", 'rb') as pipeline:
+       loaded_pipeline = dill.load(pipeline)
+       data = loaded_pipeline.transform(df)
+       with open('/home/laptop-kl-11/personal_project/car_dekho_project/weights/random_forest.pkl','rb') as model:
+           model = dill.load(model)
+           predicition = model.predict(data)
+           predicition = loaded_pipeline.__getitem__(0)[2].y_ss.inverse_transform([predicition])
+           # Display the predicted price to the user
+           st.success(f"The estimated price for your car is:   Rs.{round(predicition[0][0],2)}")
+           
+
+    
+
 

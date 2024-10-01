@@ -54,8 +54,7 @@ class StandardizeColumnName(BaseEstimator, TransformerMixin):
 
     
 class CustomStandardScaler(BaseEstimator, TransformerMixin): 
-    def __init__(self,is_train): 
-        self.is_train = is_train
+    def __init__(self): 
         self.column_names = ['kerb_weight', 'height', 'wheel_base','length','width','kilo_meter',
                 'model_year','engine_displacement']
         
@@ -70,7 +69,7 @@ class CustomStandardScaler(BaseEstimator, TransformerMixin):
         transformed_df = X.copy()
         output_df = pd.DataFrame(self.x_ss.transform(transformed_df[self.column_names]),
                                 columns = self.x_ss.get_feature_names_out())
-        if self.is_train:
+        if 'price' in transformed_df.columns:
             price_col = pd.DataFrame(self.y_ss.transform(transformed_df[['price']]),columns=['price'])
             transformed_df = transformed_df.drop('price',axis = 1)
             output_df = pd.concat([output_df,price_col],axis= 1)
@@ -79,7 +78,9 @@ class CustomStandardScaler(BaseEstimator, TransformerMixin):
         return transformed_df
     
 
-class preprocess_numerical_column(BaseEstimator, TransformerMixin):
+
+ 
+class PreprocessNumericalColumn(BaseEstimator, TransformerMixin):
     def __init__(self):
         self.column_names = ['length','width','height','wheel_base','kerb_weight','kilo_meter'] 
         pass
@@ -128,7 +129,7 @@ class preprocess_numerical_column(BaseEstimator, TransformerMixin):
     
 
 
-class impute_numerical_missing_values(BaseEstimator, TransformerMixin):
+class ImputeNumericalMissingValues(BaseEstimator, TransformerMixin):
     
     def __init__(self):
         self.col_names = ['length','width','wheel_base','height','kerb_weight','engine_displacement','kilo_meter']
@@ -164,9 +165,31 @@ class impute_numerical_missing_values(BaseEstimator, TransformerMixin):
         return transformed_df
 
     
+class HandleBooleanFeatures(BaseEstimator, TransformerMixin): 
+    def __init__(self):
+        self.bool_features = ['drive_modes', 'voice_control', 'smart_key_band', 'battery_saver', 'rear_reading_lamp', 'power_boot', 'power_steering', 'real_time_vehicle_tracking', 'luggage_hook_and_net', 'cruise_control', 'seat_lumbar_support', 
+        'power_windows_front', 'vanity_mirror', 'gear_shift_indicator', 'trunk_light', 'adjustable_headrest', 'engine_start_stop_button', 'find_my_car_location', 'multifunction_steering_wheel', 'remote_engine_start_stop', 'active_noise_cancellation', 'remote_fuel_lid_opener', 'hands_free_tailgate', 'remote_trunk_opener', 'lane_change_indicator', 'glove_box_cooling', 'tailgate_ajar', 'steering_wheel_gearshift_paddles', 'rear_seat_centre_arm_rest', 'navigation_system', 'cup_holders_rear', 
+        'smart_access_card_entry', 'power_windows_rear', 'cup_holders_front', 'rear_acvents', 'air_quality_control', 'low_fuel_warning_light', 'remote_climate_control', 'power_folding3rd_row_seat', 'steering_mounted_tripmeter', 'accessory_power_outlet', 'rear_seat_headrest', 'remote_horn_light_control', 'height_adjustable_front_seat_belts', 'leather_steering_wheel', 'fabric_upholstery', 'glove_compartment', 'adjustable_steering', 'height_adjustable_driver_seat', 'air_conditioner', 'cigarette_lighter', 
+        'dual_tone_dashboard', 'heater', 'digital_clock', 'outside_temperature_display', 'leather_seats', 'electronic_multi_tripmeter', 'rear_folding_table', 'driving_experience_control_eco', 'leather_wrap_gear_shift_selector', 'digital_odometer', 'tachometer', 'ventilated_seats', 'tinted_glass', 'fog_lights_rear', 'ledfog_lamps', 'smoke_headlamps', 'chrome_grille', 'rear_window_wiper', 'ledtaillights', 'outside_rear_view_mirror_turn_indicators', 'adjustable_head_lights', 'rain_sensing_wiper', 'automatic_driving_lights', 'roof_rail', 'power_antenna', 'integrated_antenna', 
+        'removable_convertible_top', 'sun_roof', 'manually_adjustable_exterior_rear_view_mirror', 'side_stepper', 'projector_headlamps', 'electric_folding_rear_view_mirror', 'cornering_foglamps', 'chrome_garnish', 'moon_roof', 'alloy_wheels', 'rear_window_washer', 'leddrls', 'wheel_covers', 'heated_wing_mirror', 'power_adjustable_exterior_rear_view_mirror', 'halogen_headlamps', 'rear_spoiler', 'fog_lights_front', 'rear_window_defogger', 'cornering_headlamps', 'dual_tone_body_colour', 'headlamp_washers', 'roof_carrier', 'ledheadlights', 'traction_control', 
+        'side_impact_beams', 'seat_belt_warning', 'rear_seat_belts', 'power_door_locks', 'xenon_headlamps', 'pretensioners_and_force_limiter_seatbelts', 'side_air_bag_front', 'anti_lock_braking_system', 'centeral_locking', 'hill_descent_control', 'anti_theft_device', 'vehicle_stability_control_system', 'blind_spot_monitor', 'automatic_head_lamps', 'knee_airbags', 'driver_air_bag', 'engine_immobilizer', 'crash_sensor', 'lane_watch_camera', 'front_impact_beams', 'view360camera', 'speed_sensing_auto_door_lock', 'anti_pinch_power_windows', 'speed_alert', 'hill_assist', 
+        'passenger_side_rear_view_mirror', 'adjustable_seats', 'rear_camera', 'geo_fence_alert', 'clutch_lock', 'side_air_bag_rear', 'eletronic_stability_control', 'child_safety_locks', 'ebd', 'centrally_mounted_fuel_tank', 'brake_assist', 'passenger_air_bag', 'sos_emergency_assistance', 'day_night_rear_view_mirror', 'door_ajar_warning', 'halogen_headlamps_1', 'engine_check_warning', 'isofix_child_seat_mounts', 'tyre_pressure_monitor', 'heads_up_display', 'follow_me_home_headlamps', 'anti_theft_alarm', 'impact_sensing_auto_door_lock', 'keyless_entry', 
+        'audio_system_remote_control', 'cd_changer', 'wireless_phone_charging', 'speakers_front', 'internal_storage', 'touch_screen_size', 'wifi_connectivity', 'dvd_player', 'speakers_rear', 'radio', 'android_auto', 'apple_car_play', 'cassette_player', 'touch_screen', 'usb_auxiliary_input', 'bluetooth', 'mirror_link', 'rear_entertainment_system', 'integrated2din_audio', 'compass', 'cd_player']
+        pass
 
 
-class preprocess_categorical_features(BaseEstimator, TransformerMixin):
+    def fit(self, X): 
+        return self
+
+    def transform(self, X):
+        transformed_df = X.copy()
+        if X[self.bool_features[0]].dtype != bool: 
+            transformed_df.loc[:,self.bool_features] = (transformed_df.loc[:,self.bool_features] == "Yes" )
+        return transformed_df
+
+
+
+class PreprocessCategoricalFeatures(BaseEstimator, TransformerMixin):
     def __init__(self):
         pass 
     
@@ -218,9 +241,9 @@ class preprocess_categorical_features(BaseEstimator, TransformerMixin):
     def transmission_encode(self,x): 
         x = x.lower().strip()
         if 'automatic' == x:
-            return 1
-        else: 
             return 0
+        else: 
+            return 1
         
     def cylinder_encode(self,x):
         if pd.notna(x):
@@ -246,7 +269,7 @@ class preprocess_categorical_features(BaseEstimator, TransformerMixin):
         return transformed_x                    
 
         
-class impute_categorical_feature(BaseEstimator, TransformerMixin):
+class ImputeCategoricalFeatures(BaseEstimator, TransformerMixin):
     def __init__(self):
         self.column_names = ['front_brake_type','rear_brake_type','turbo_charger','transmission','no_of_cylinder','tyre_type']
         
@@ -298,15 +321,19 @@ class OneHotEncoding(BaseEstimator, TransformerMixin):
         self.column_names = column_names
 
     def fit(self, X):
+            transformed_x = X.copy()
+            transformed_x[self.column_names] = transformed_x[self.column_names].apply(lambda col : col.str.lower())
             self.ohe = OneHotEncoder(sparse_output=False,dtype = int)
-            self.ohe.fit(X[self.column_names])
+            self.ohe.fit(transformed_x[self.column_names])
             return self
     
     def transform(self,X): 
+            X[self.column_names] = X[self.column_names].apply(lambda col : col.str.lower())
             ohe_value = self.ohe.transform(X[self.column_names])
             tranformed_df = pd.DataFrame(ohe_value, columns=self.ohe.get_feature_names_out())
             tranformed_df = pd.concat([X,tranformed_df], axis= 1)
             return tranformed_df.drop(self.column_names,axis = 1)
+
     
 
 class TargetEncoding(BaseEstimator, TransformerMixin): 
@@ -337,37 +364,21 @@ class TargetEncoding(BaseEstimator, TransformerMixin):
 
         return transformed_df
 
+
 def initialize_pipeline():
     numerical_pipeline = Pipeline([
-        ('remove_unwanted_col_row', RemoveUnwantedColsAndRows(
-            unwanted_columns = ["it","owner","centralVariantId","variantName","priceActual","priceSaving","priceFixedText",
-                                "trendingText","Fuel Type","Ownership","Transmission","Year of Manufacture","Values per Cylinder",
-                                "Value Configuration","BoreX Stroke","Compression Ratio","Max Power","Max Torque","Super Charger","Cargo Volumn","Top Speed",
-                                "Acceleration","Turning Radius","Alloy Wheel Size","Rear Tread","Gross Weight","Front Tread","Engine Type","Ground Clearance Unladen",
-                                "Seating Capacity","Gear Box","Steering Type", "Drive Type","No Door Numbers",'Displacement','RTO','Seats','Kms Driven','Registration Year',
-                                'Insurance Validity','Fuel Suppy System','No Of Airbags','Number Of Speaker'],
-            non_nan_row_threshold = 90)),
-
-        ('standardize_column_names', StandardizeColumnName(
-            
-            rename_columns={'ft':'fuel_type','bt': 'body_type','km': 'kilo_meter', 'oem': 'original_equipment_manufacturer','modelYear': 'model_year',
-                            'Wheel Base': 'wheel_base','Kerb Weight': 'kerb_weight','Rear Brake Type': 'rear_brake_type','Front Brake Type': 'front_brake_type',
-                            'No of Cylinder': 'no_of_cylinder','Tyre Type' : 'tyre_type','Turbo Charger': 'turbo_charger'})),
-
-        ('formatting_column', preprocess_numerical_column()),
-        ('impute_missing_values',impute_numerical_missing_values()),
-        ('standardization', CustomStandardScaler(is_train=True))
-        
-    ])
-
-
-
+    ('formatting_column', PreprocessNumericalColumn()),
+    ('impute_missing_values',ImputeNumericalMissingValues()),
+    ('standardization', CustomStandardScaler())
+    
+        ])
     categorical_pipeline = Pipeline([
-        ('formatting_columns',preprocess_categorical_features()),
-        ('impute_missing_values',impute_categorical_feature()),
-        ('ohe', OneHotEncoding(column_names = ['fuel_type', 'body_type','location','no_of_cylinder','tyre_type'])),
-        ('target_encoding', TargetEncoding())
-    ])
+    ('handling_bool_values',HandleBooleanFeatures()),
+    ('formatting_columns',PreprocessCategoricalFeatures()),
+    ('impute_missing_values',ImputeCategoricalFeatures()),
+    ('ohe', OneHotEncoding(column_names = ['fuel_type', 'body_type','location','no_of_cylinder','tyre_type'])),
+    ('target_encoding', TargetEncoding())
+        ])
 
     final_pipeline = Pipeline([
     ('numerical_pipeline', numerical_pipeline),
